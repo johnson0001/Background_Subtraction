@@ -4,21 +4,21 @@ import os
 import module1 as md1
 import folder_pro as folder
 
+
 np.seterr(divide='ignore', invalid='ignore')
 
 def main():
-    input_dir = "C:\\sample_data" #処理するファイルのディレクトリ
-    output_dir = "C:\\sample_bgsub_ver7_20_9" #出力するファイルのディレクトリ
-
+    input_dir = "C:\\kanamitsu\\01" #処理するファイルのディレクトリ
+    output_dir = "C:\\kanamitsu\\01_ver3.1" #出力するファイルのディレクトリ
     path_list, name_list, ext_list, out_list = folder.file_search(input_dir, output_dir)
-
-    back = cv2.imread(input_dir + "\\back.bmp")
-
+    #back = cv2.imread(input_dir + "\\back2.bmp")
+    back = cv2.imread("C:\\kanamitsu\\back.bmp")
     for file, outfile in zip(path_list, out_list):
         front = cv2.imread(file)
-        mask = md1.Background_Subtraction(front, back) #背景差分
-        mask = md1.shadow_extract(back, front, mask) #影除去
-        mask = md1.opening(mask, 3) #ノイズ除去
+        mask = md1.Background_Subtraction(front, back)
+        mask = md1.shadow_extract(back, front, mask)
+        mask = md1.opening(mask, 3, 1)
+        #mask = md1.closing(mask, 3, 1)
         cv2.imwrite(outfile, mask)
 
 
@@ -35,5 +35,4 @@ if __name__ == "__main__":
     #print(binary.shape)
     #md1.shadow_extract(back_color, front_color, binary)
     
-    ##背景差分挙動確認
-    #mask = md1.Background_Subtraction(front_color, back_color)
+

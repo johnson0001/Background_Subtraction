@@ -34,12 +34,43 @@ def gaussian_filter(img, kernel):
 
 
 #モルフォロジー処理（オープニング(収縮の後に膨張））
-def opening(binary, ksize):
+def opening(binary, ksize, n):
     kernel = np.ones((ksize, ksize), np.uint8)
-    out = cv2.erode(binary, kernel, iterations=1)
-    out = cv2.dilate(out, kernel, iterations=1)
+    if n ==1:
+        out = cv2.erode(binary, kernel, iterations=1)
+        out = cv2.dilate(out, kernel, iterations=1)
+        return out
 
-    return out
+    else:
+        for i in range(n-1):
+            if i == 0:
+                out = cv2.erode(binary, kernel, iterations=1)
+            else:
+                out = cv2.erode(out, kernel, iterations=1)
+        for i in range(n-1):
+            out = cv2.dilate(out, kernel, iterations=1)
+            
+        return out
+
+#モルフォロジー処理（クロージング（膨張の後に収縮））
+def closing(binary, ksize, n):
+    kernel = np.ones((ksize, ksize), np.uint8)
+    if n == 1:
+        out = cv2.dilate(binary, kernel, iterations=1)
+        out = cv2.erode(out, kernel, iterations=1)
+        return out
+
+    else:
+        for i in range(n-1):
+            if i == 0:
+                out = cv2.dilate(binary, kernel, iterations=1)
+            else:
+                out = cv2.dilate(out, kernel, iterations=1)
+        for i in range(n-1):
+            out = cv2.erode(out, kernel, iterations=1)
+
+        return out
+
 
 
 
