@@ -71,12 +71,20 @@ def closing(binary, ksize, n):
 
         return out
 
+#モルフォロジー処理（テスト用）
+def morphology_test(binary, ksize):
+    kernel = np.ones((ksize, ksize), np.uint8)
+    out = cv2.erode(binary, kernel, iterations=1)
+    out = cv2.dilate(out, kernel, iterations=1)
+    out = cv2.dilate(out, kernel, iterations=1)
+    
+    return out
 
 
 
 
 #影除去
-def shadow_extract(back_colorimg, input_colorimg, binary_img):
+def shadow_extract(back_colorimg, input_colorimg, binary):
     B1 = back_colorimg[:, :, 0:1].astype(np.double)
     G1 = back_colorimg[:, :, 1:2].astype(np.double)
     R1 = back_colorimg[:, :, 2:3].astype(np.double)
@@ -94,13 +102,7 @@ def shadow_extract(back_colorimg, input_colorimg, binary_img):
     shadow = np.where((theta < threthold) & (B1 > B2) & (G1 > G2) & (G1 > G2), 0, 255).astype(np.uint8)
     shadow = np.reshape(shadow, (shadow.shape[0], shadow.shape[1]))
 
-    #binary_img = np.delete(binary_img, [1, 2], 2)
-    #binary_img = np.reshape(binary_img, (binary_img.shape[0], binary_img.shape[1]))
-    binary_out = np.where(shadow < 127, shadow, binary_img)
-    #cv2.imshow("out", binary_out)
-
-    #cv2.waitKey(0)
-    #cv2.destroyAllWindows()
+    binary_out = np.where(shadow < 127, shadow, binary)
 
     return binary_out
 
@@ -119,9 +121,23 @@ def Background_Subtraction(front_img, background_img):
     mask[mask < th] = 0
     mask[mask >= th] = 255
 
-    #print(mask.shape)
-    #cv2.imshow("mask", mask)
-    #cv2.waitKey(0)
-    #cv2.destroyAllWindows()
-
     return mask
+
+
+
+#処理領域削減
+def scaling(img):
+    white = np.argwhere(img!=0) #画素値が0でない座標の配列
+
+    if(white.shape != (0, 2)): #白領域が存在する場合のみ処理
+        y_white = white[:,0] #画素値が白のピクセルのy座標一覧
+        x_white = white[:,1] #画素値が白のピクセルのx座標一覧
+
+        horizontal_center = np.mean(x_white) #水平方向の中心
+        print(horizontal_center)
+        horizontal_center = np.round(horizontal_center).astype(np.int)
+        y_min = np.min(y_white) #白領域のy座標が最小のピクセルのy座標
+        y_max = np.max(y_white) #白領域のy座標が最大のピクセルのy座標
+        print(horizontal_center, y_min, y_max)
+
+        
