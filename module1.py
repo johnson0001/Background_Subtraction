@@ -125,8 +125,10 @@ def Background_Subtraction(front_img, background_img):
 
 
 
-#処理領域削減
-def scaling(img):
+
+
+#人物領域を任意の範囲で抽出
+def triming(img):
     white = np.argwhere(img!=0) #画素値が0でない座標の配列
 
     if(white.shape != (0, 2)): #白領域が存在する場合のみ処理
@@ -134,10 +136,20 @@ def scaling(img):
         x_white = white[:,1] #画素値が白のピクセルのx座標一覧
 
         horizontal_center = np.mean(x_white) #水平方向の中心
-        print(horizontal_center)
-        horizontal_center = np.round(horizontal_center).astype(np.int)
+        vertical_center = np.mean(y_white) #垂直方向の中心
+        horizontal_center = np.round(horizontal_center).astype(np.int) #実数→整数
+        vertical_center = np.round(vertical_center).astype(np.int)
         y_min = np.min(y_white) #白領域のy座標が最小のピクセルのy座標
         y_max = np.max(y_white) #白領域のy座標が最大のピクセルのy座標
-        print(horizontal_center, y_min, y_max)
+        #トリミング
+        img = img[vertical_center-210:vertical_center+180, horizontal_center-100:horizontal_center+130] #任意の範囲を指定
+        return img
 
-        
+
+#人物領域を外接矩形で抽出
+def contours(img):
+    contours = cv2.findContours(img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]     
+    cnt = max(contours, key=lambda x:cv2.contourArea(x))
+    x, y, width, height = cv2.boundingRect(cnt)
+    img = img[y:y+height, x:x+width]
+    return img
